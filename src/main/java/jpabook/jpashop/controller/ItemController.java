@@ -66,8 +66,19 @@ public class ItemController {
         return "items/updateItemForm";
     }
 
+    /**
+     * 준영속 엔티티를 수정하는 2가지 방법.
+     * 1. 변경감지 기능 사용 ( ItemService > updateItem )
+     * 2. 병합(merge)사용 (itemService > saveItem > itemRepository.save > merge )
+     * 차이 : 변경감지의 경우 변경한 필드만 감지되어 Update된다. merge의 경우 변경된 필드만 값이 들어가고 없는 필드는 null로 바뀐다.
+     * 결론 : 변경감지를 사용해라.
+     * */
     @PostMapping("/items/{itemId}/edit")
-    public String updateItem( @PathVariable String itemId, @ModelAttribute("form") BookForm form) {
+    public String updateItem( @PathVariable Long itemId, @ModelAttribute("form") BookForm form) {
+
+        /*
+          book는 임시로 만들어진 객체지만 getId를 갖고 있으므로 준영속 엔티티이다.
+          -  merge 사용
         Book book = new Book();
 
         book.setId(form.getId());
@@ -78,6 +89,11 @@ public class ItemController {
         book.setIsbn(form.getIsbn());
 
         itemService.saveItem(book);
+         */
+
+        // 변경감지 사용
+        itemService.updateItem(itemId, form.getName(), form.getPrice(), form.getStockQuantity());
+
         return "redirect:/items";
 
     }
